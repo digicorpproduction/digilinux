@@ -1,0 +1,61 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using OfficeOpenXml;
+
+class Program
+{
+    static void Main()
+    {
+        // Prompt the user for accounting values
+        Console.Write("Enter dollar amount: ");
+        decimal amount = decimal.Parse(Console.ReadLine());
+
+        Console.Write("Enter creditor name: ");
+        string creditor = Console.ReadLine();
+
+        Console.Write("Enter date (mm/dd/yyyy): ");
+        DateTime date = DateTime.ParseExact(Console.ReadLine(), "MM/dd/yyyy", null);
+
+        // Create a list to store the accounting data
+        List<AccountingEntry> entries = new List<AccountingEntry>
+        {
+            new AccountingEntry { Amount = amount, Creditor = creditor, Date = date }
+        };
+
+        // Create a new Excel package
+        using (ExcelPackage package = new ExcelPackage())
+        {
+            // Add a new worksheet to the Excel package
+            ExcelWorksheet worksheet = package.Workbook.Worksheets.Add("Accounting Data");
+
+            // Set the headers in the worksheet
+            worksheet.Cells["A1"].Value = "Dollar Amount";
+            worksheet.Cells["B1"].Value = "Creditor";
+            worksheet.Cells["C1"].Value = "Date";
+
+            // Set the accounting data in the worksheet
+            for (int i = 0; i < entries.Count; i++)
+            {
+                int row = i + 2;
+                worksheet.Cells[$"A{row}"].Value = entries[i].Amount;
+                worksheet.Cells[$"B{row}"].Value = entries[i].Creditor;
+                worksheet.Cells[$"C{row}"].Value = entries[i].Date.ToString("MM/dd/yyyy");
+            }
+
+            // Save the Excel package to a file
+            FileInfo file = new FileInfo("AccountingData.xlsx");
+            package.SaveAs(file);
+        }
+
+        Console.WriteLine("Accounting data saved to AccountingData.xlsx");
+    }
+}
+
+class AccountingEntry
+{
+    public decimal Amount { get; set; }
+    public string Creditor { get; set; }
+    public DateTime Date { get; set; }
+}
+
